@@ -60,7 +60,6 @@
   },
     methods:{
     edit:function () {
-      var that=this;
       var parms=JSON.stringify(this.user);
       console.log(this.user);
       axios.post('http://127.0.0.1:8080/api/v1/edit',
