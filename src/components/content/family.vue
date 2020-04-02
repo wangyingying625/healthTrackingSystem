@@ -119,6 +119,7 @@
     }
 </style>
 <script>
+  import global_ from '../../global.vue';
     export default {
         methods: {
             open () {
@@ -131,6 +132,16 @@
                     }
                 });
             }
+        },
+      beforeRouteEnter (to, from, next) {
+          console.log("router")
+        if(global_.user.family_id)
+        {
+          next();
         }
+        else {
+          next({ path: '/family' });
+        }
+      }
     };
 </script>
