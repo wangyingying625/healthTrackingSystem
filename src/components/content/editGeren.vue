@@ -87,7 +87,6 @@
           }
         }).then(function (res) {
           global_.user=res.data.data;
-          console.log(global_.user)
           this.user = global_.user;
         })
       }

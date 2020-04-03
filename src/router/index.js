@@ -6,7 +6,7 @@ import oneClick from '@/components/content/oneClick';
 import Template from '@/components/content/Template';
 import family from '@/components/content/family';
 import editGeren from '@/components/content/editGeren';
-import newFamily from '@/components/content/newFamily';
+import newFamily from '../components/content/newFamily.vue';
 import geRen from '@/components/content/geRen';
 import recordPicture from '@/components/content/recordPicture';
 import login from '@/components/login/login';
@@ -110,7 +110,7 @@ export default new Router({
         },
         {
           id:9,
-          path:'./newFamily',
+          path:'/newFamily',
           component:newFamily,
         }
       ]

@@ -40,8 +40,8 @@
       loginOut () {
         sessionStorage.token=null;
         global_.token=null;
-        /* 防止切换角色时addRoutes重复添加路由导致出现警告 */
         this.$router.push('/login');
+        localStorage.token=null;
       }
     },
     beforeCreate:function () {

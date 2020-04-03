@@ -8,7 +8,7 @@ import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import global_ from './global.vue';
 /* eslint-disable */
-Vue.use(ElementUI);
+Vue.use(ElementUI)
 Vue.config.productionTip = false;
 router.beforeEach((to, from, next) => {
   global_.token=localStorage.token;
