@@ -30,14 +30,14 @@
         }
       },
       methods:{
-        joinFamily:function () {
-          if(!this.familyId)
+        joinFamily() {
+          var that=this;
+          if(this.familyId=='')
           {
-            alert('不能为空');
+            this.$message('账号不能为空');
           }
           else {
-            var that=this;
-            axios.get('http://127.0.0.1:8080/api/family/apply',{
+            axios.get('http://127.0.0.1:8080/api/family/join',{
               params:{
                 id:that.familyId
               },
@@ -45,18 +45,22 @@
                 'Authorization': global_.token
               }
             }).then(function (res) {
-              console.log(res.data)
-              alert('申请成功，等待管理员同意')
+              if(res.data.status==true)
+              {
+                global_.user.family_id=that.familyId;
+                that.$router.push('/family');
+                that.$message('申请成功，等待管理员同意');
+
+              }
             })
           }
         },
-        newFamily:function () {
+        newFamily() {
           var that=this;
           if(this.familyName==''){
-            alert('不能为空')
+            this.$message('名称不能为空');
           }
           else {
-            console.log(this.familyName)
             axios.get('http://127.0.0.1:8080/api/family/newFamily',{
               params:{
                 name:that.familyName
@@ -65,11 +69,21 @@
                 'Authorization': global_.token
               }
             }).then(function (res) {
-              console.log(res.data)
                 global_.user.family_id=res.data.id;
               that.$router.push('/family');
             })
           }
+        }
+      },
+      beforeRouteEnter(to, from, next) {
+        console.log(global_.user);
+        console.log(global_.user.family_id);
+        if (global_.user.family_id && global_.user.family_id!=0) {
+
+          next({path: '/family'});
+        }
+        else {
+          next();
         }
       }
     }
