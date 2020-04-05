@@ -1,24 +1,49 @@
 <template>
   <div>
-    <el-card shadow="always">
-      <div>
-        申请加入
-        <el-button type="danger" plain style="float: right;margin-bottom: 15px">拒绝</el-button>
-        <el-button type="success" plain style="float: right;margin-right: 10px;margin-bottom: 15px">同意</el-button>
-
+    <el-card shadow="always" v-if="admin && applyList.length!=0">
+      <div v-for="item in applyList" :key="item">
+        <strong>{{item.name}}</strong>申请加入
+        <el-button type="danger" @click="refuse(item.id)" plain style="float: right;margin-bottom: 15px">拒绝</el-button>
+        <el-button type="success" @click="agree(item.id)" plain style="float: right;margin-right: 10px;margin-bottom: 15px">同意</el-button>
       </div>
     </el-card>
     <div class="family_header">
-      家庭:{{}}
-      <el-link type="danger" style="float: right">解散家庭</el-link>
+      ID:{{familyId}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{familyName}}
+      <el-link type="danger" v-if="admin" style="float: right">解散家庭</el-link>
+      <el-link type="danger" v-if="member" style="float: right">退出家庭</el-link>
     </div>
     <div id="box">
       <div>
-        <el-card v-for="item in familyList" :key="item" class="box-card" shadow="hover">
+        <el-card  v-if="admin"  v-for="item in familyList" :key="item" class="box-card" shadow="hover">
           <div slot="header" class="clearfix">
             <el-button type="text" @click="open" style="float: right; padding: 3px 0;color: rgb(84, 92, 100)
                         ;">移除成员
             </el-button>
+            <el-button style="float: right; padding: 3px 0;color: rgb(84, 92, 100)
+                        ;" type="text">查看病历
+            </el-button>
+          </div>
+          <div class="text item">
+            用户名:{{item.name}}
+          </div>
+          <div class="text item" v-if="item.email">
+            体重:{{item.email}}
+          </div>
+          <div class="text item" v-if="item.sex">
+            体重:{{item.sex}}
+          </div>
+          <div class="text item" v-if="item.weight">
+            体重:{{item.weight}}
+          </div>
+          <div class="text item" v-if="item.height">
+            体重:{{item.height}}
+          </div>
+          <div class="text item" v-if="item.birthday">
+            体重:{{item.birthday}}
+          </div>
+        </el-card>
+        <el-card  v-if="!admin"  v-for="item in familyList" :key="item" class="box-card" shadow="hover">
+          <div slot="header" class="clearfix">
             <el-button style="float: right; padding: 3px 0;color: rgb(84, 92, 100)
                         ;" type="text">查看病历
             </el-button>
@@ -94,7 +119,12 @@
   export default {
     data () {
       return {
-        familyList: []
+        familyList: [],
+        familyName:'',
+        admin:false,
+        member:false,
+        familyId:'',
+        applyList:[]
       }
     },
     created: function () {
@@ -104,8 +134,29 @@
           family_id: global_.user.family_id
         }
       }).then(function (res) {
-        console.log(res.data)
-        that.familyList = res.data.members
+        that.familyList = res.data.members,
+          that.familyName = res.data.family.name,
+          that.familyId = res.data.family.id
+      });
+      axios.get('http://127.0.0.1:8080/api/v1/users/info', {
+        headers: {
+          'Authorization': global_.token,
+        }
+      }).then(function (res) {
+        global_.user = res.data.data;
+        if (global_.user.status == 'admin')
+        { that.admin = true;
+          axios.get('http://127.0.0.1:8080/api/family/applyList', {
+            headers: {
+              'Authorization': global_.token,
+            }
+          }).then(function (res) {
+            console.log(res.data);
+            that.applyList=res.data;
+          });
+        }
+        else if(global_.user.status=='member')
+          that.member=true
       })
     },
     methods: {
@@ -118,6 +169,55 @@
             })
           }
         })
+      },
+      getMemberList(that){
+        axios.get('http://127.0.0.1:8080/api/family/familyList', {
+          params: {
+            family_id: global_.user.family_id
+          }
+        }).then(function (res) {
+          that.familyList = res.data.members
+        });
+      },
+      agree(id){
+        var that=this;
+        axios.get('http://127.0.0.1:8080/api/family/accept', {
+          headers: {
+            'Authorization': global_.token,
+          },
+          params:{
+            user_id:id
+          }
+        }).then(function (res) {
+          if(res.data.status==true)
+          {
+            alert('加入成功');
+            that.getMemberList(that);
+          }
+          else{
+            alert('稍后再试');
+          }
+        })
+      },
+      refuse(id){
+        var that=this;
+        axios.get('http://127.0.0.1:8080/api/family/refuse', {
+          headers: {
+            'Authorization': global_.token,
+          },
+          params:{
+            user_id:id
+          }
+        }).then(function (res) {
+          if(res.data.status==true)
+          {
+            alert('拒绝成功');
+            that.getMemberList(that);
+          }
+          else{
+            alert('稍后再试');
+          }
+        })
       }
     },
     beforeRouteEnter(to, from, next) {
@@ -127,7 +227,6 @@
       else {
         next({path: '/newFamily'});
       }
-    },
-    beforeCreate: {}
+    }
   }
 </script>

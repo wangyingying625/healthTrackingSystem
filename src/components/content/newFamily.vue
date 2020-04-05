@@ -31,12 +31,23 @@
       },
       methods:{
         joinFamily:function () {
-          if(!this.data.familyId)
+          if(!this.familyId)
           {
             alert('不能为空');
           }
           else {
-
+            var that=this;
+            axios.get('http://127.0.0.1:8080/api/family/apply',{
+              params:{
+                id:that.familyId
+              },
+              headers:{
+                'Authorization': global_.token
+              }
+            }).then(function (res) {
+              console.log(res.data)
+              alert('申请成功，等待管理员同意')
+            })
           }
         },
         newFamily:function () {
