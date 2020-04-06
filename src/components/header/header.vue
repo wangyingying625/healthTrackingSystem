@@ -36,6 +36,14 @@
   import global_ from '../../global.vue';
   import axios from 'axios';
   export default {
+    beforeRouteEnter(to, from, next) {
+      if (global_.token) {
+        next();
+      }
+      else {
+        next({path: '/login'});
+      }
+    },
     methods: {
       loginOut () {
         sessionStorage.token=null;

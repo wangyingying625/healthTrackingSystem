@@ -8,7 +8,10 @@
   {
     data(){
       return {
-        token:null
+        token:null,
+        user:{
+          family_id:0
+        }
       }
     },
     beforeCreate:function () {

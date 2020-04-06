@@ -3,12 +3,14 @@
 /* eslint-disable */
 import Vue from 'vue';
 import router from './router';
+import Router from 'vue-router';
 import App from './App.vue';
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import global_ from './global.vue';
 /* eslint-disable */
-Vue.use(ElementUI)
+Vue.use(ElementUI);
+Vue.use(Router);
 Vue.config.productionTip = false;
 router.beforeEach((to, from, next) => {
   global_.token=localStorage.token;
