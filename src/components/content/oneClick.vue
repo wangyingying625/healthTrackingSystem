@@ -7,8 +7,7 @@
           name="file"
           action="http://127.0.0.1:8080/api/upload/uploadPicture"
           :data="user"
-          :on-preview="handlePreview"
-          :on-remove="handleRemove"
+          :on-success="getImgId"
           :file-list="fileList"
           list-type="picture">
           <el-button size="small" type="primary">点击上传</el-button>
@@ -25,7 +24,7 @@
             :picker-options="pickerOptions">
           </el-date-picker>
         </div>
-        <el-button type="info" @click="" plain style="float: right;margin: 5px;margin-right: 15px">确定</el-button>
+        <el-button type="info" @click="upload" plain style="float: right;margin: 5px;margin-right: 15px">确定</el-button>
       </div>
     </el-card>
   </div>
@@ -42,6 +41,7 @@
         file:'',
         user:{userId:''},
         fileList: [],
+        imgId:'',
         pictureType:'',
         pickerOptions: {
           disabledDate (time) {
@@ -72,38 +72,26 @@
       }
     },
     methods: {
-      handleRemove(file, fileList) {
-        console.log(file, fileList);
-      },
-      handlePreview(file) {
-        console.log(file);
-      },
-      getFile(e){
-        var that=this;
-        var id=this.user.id;
-        let file = e.target.files[0];
-        let param = new FormData(); //创建form对象
-        param.append('file',file);//通过append向form对象添加数据
-        console.log(param.get('file')); //FormData私有类对象，访问不到，可以通过get判断值是否传进去
-        axios.post('http://127.0.0.1:8080/api/upload/uploadPicture',param, {
-          headers: {
-            'Authorization': global_.token,
-          }}) .then(function (res) {
-          console.log(res.data)
-        })
+      getImgId(response, file, fileList){
+        this.imgId=response.id;
       },
       upload(){
+        if(this.imgId==''||this. pictureType==''||this.date=='')
+        {
+          that.$message('请补全病历信息后再试');
+        }
+        else {
         var that=this;
-        console.log(this.file)
-        axios.post('http://127.0.0.1:8080/api/upload/uploadPicture',
+        axios.post('http://127.0.0.1:8080/api/upload/identify',
           {
-            user_id:that.user.id,
-            config:config,
-            param:param
-          },).then(function (res) {
+            userId:that.user.userId,
+            image_id:that.imgId,
+            date:that.date,
+            type:that.pictureType,
+          }).then(function (res) {
           console.log(res.data)
         })
-
+        }
       }
     },
     created:function () {
