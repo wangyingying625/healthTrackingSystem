@@ -1,95 +1,173 @@
 <template>
-  <div>
-    <el-row style="margin-bottom: 50px">
+  <div id="test">
+    <!--<el-row style="margin-bottom: 50px">
       <el-col :span="24" style="height: 350px"><div id="main" class="grid-content bg-purple-dark" style="width: 100%;height: 100%"></div></el-col>
-    </el-row>
+    </el-row>-->
+    <el-button @click="tr">感谢使用，点击查看健康信息</el-button>
     <el-row>
-      <el-col :span="12"  style="height: 350px"><div id="other1" class="grid-content bg-purple" style="width: 100%;height: 100%"></div></el-col>
-      <el-col :span="12" style="height: 350px"><div id="other2" class="grid-content bg-purple-light" style="width: 100%;height: 100%"></div></el-col>
+      <el-col  v-for="(item,i) in arrayMsg" :id="'card' + i" :key="i" :span="12"  style="height: 350px">
+        <div  :id="gernerateId(i)" class="grid-content bg-purple" style="width: 100%;height: 100%"></div>
+      </el-col>
     </el-row>
   </div>
 </template>
 <style scoped>
 </style>
 <script>
+  import ElButton from '../../../node_modules/element-ui/packages/button/src/button.vue'
+
   var echarts = require('echarts');
+  import axios from 'axios';
+  import global_ from '../../global.vue';
+
+
   export default {
+    components: {ElButton},
     data () {
       return {
+        msg: {},
+        arrayMsg: []
       };
+    },
+    beforeRouteEnter (to, from, next) {
+      if (global_.token) {
+        next();
+      }
+      else {
+        next({path: '/login'});
+      }
+    },
+    beforeCreate: function () {
+
+    },
+    created: function () {
+      var that = this;
+
     },
     mounted: function () {
-      var option1 = {
-        title: {
-          text: '折线图堆叠'
-        },
-        tooltip: {
-          trigger: 'axis'
-        },
-        legend: {
-          data: ['邮件营销', '联盟广告', '视频广告', '直接访问', '搜索引擎']
-        },
-        grid: {
-          left: '3%',
-          right: '4%',
-          bottom: '3%',
-          containLabel: true
-        },
-        toolbox: {
-          feature: {
-            saveAsImage: {}
-          }
-        },
-        xAxis: {
-          type: 'category',
-          boundaryGap: false,
-          data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
-        },
-        yAxis: {
-          type: 'value'
-        },
-        series: [
-          {
-            name: '邮件营销',
-            type: 'line',
-            stack: '总量',
-            data: [120, 132, 101, 134, 90, 230, 210]
-          },
-          {
-            name: '联盟广告',
-            type: 'line',
-            stack: '总量',
-            data: [220, 182, 191, 234, 290, 330, 310]
-          },
-          {
-            name: '视频广告',
-            type: 'line',
-            stack: '总量',
-            data: [150, 232, 201, 154, 190, 330, 410]
-          },
-          {
-            name: '直接访问',
-            type: 'line',
-            stack: '总量',
-            data: [320, 332, 301, 334, 390, 330, 320]
-          },
-          {
-            name: '搜索引擎',
-            type: 'line',
-            stack: '总量',
-            data: [820, 932, 901, 934, 1290, 1330, 1320]
-          }
-        ]
-      };
-      this.drawLine('other1', option1);
-      this.drawLine('main', option1);
-      this.drawLine('other2', option1);
+      console.log('mounted');
+      var that = this;
+      axios.get('http://127.0.0.1:8080/api/upload/record', {
+        headers: {
+          'Authorization': global_.token,
+        }
+      }).then(function (res) {
+        that.msg = res.data;
+        for (var j in that.msg) {
+          that.arrayMsg.push(that.msg[j]);
+        }
+      })
+
+
+
     },
     methods: {
-       drawLine (id, option) {
-        let myChart = echarts.init(document.getElementById(id));
-        myChart.setOption(option);
+      gernerateId: function (i){
+        return "container" + i;
+      },
+      tr:function () {
+        var times = 0;
+        var that=this;
+        var IndicatorsData = that.arrayMsg
+        for(let key in IndicatorsData){
+          var id="container"+times;
+          that.picture(key,id);
+          times++;
+
+        }
+      },
+      mapToObject(indictors) {
+    var series = new Array();
+    for (var name of indictors){
+      series.push({
+        name: name[0],
+        type: 'line',
+        data: name[1],
+      });
+    }
+    return series;
+  },
+      picture(key,id) {
+        var that=this;
+        var data=this.arrayMsg;
+    var num=id.slice(9);
+    var dom = document.getElementById(id);
+    var myChart = echarts.init(dom);
+    var indictors = new Array();
+    var indictorsMap= new Map();
+    var timeArray = new Array();
+    for (var image in data[key]){
+      timeArray.push(data[key][image]['created_at']);
+      for (var indictor in data[key][image]['indicators']){
+        indictors.push(data[key][image]['indicators'][indictor]['name_ch']);
       }
+    }
+
+
+    indictors = new Set(indictors);
+    for (var indictor of indictors){
+      for (var image in data[key]){
+        for (var indic in data[key][image]['indicators']){
+          if (data[key][image]['indicators'][indic]['name_ch']==indictor){
+            if(indictorsMap.has(indictor)){
+              indictorsMap.get(indictor).push(data[key][image]['indicators'][indic]['value']);
+            }else {
+              indictorsMap.set(indictor,[]);
+              indictorsMap.get(indictor).push(data[key][image]['indicators'][indic]['value']);
+            }
+          }
+
+        }
+      }
+    }
+    var seriesObject =that.mapToObject(indictorsMap);
+    var app = {};
+    var option = {
+      title: {
+        text: data[key][0].type,
+        subtext: ''
+      },
+      tooltip: {
+        trigger: 'axis'
+      },
+      legend: {
+        data: Array.from(indictors),
+        type:'scroll',
+        left: '50px'
+      },
+      toolbox: {
+        show: false,
+        feature: {
+          mark: {show: true},
+          dataView: {show: true, readOnly: false},
+          magicType: {show: true, type: ['line', 'bar']},
+          restore: {show: true},
+          saveAsImage: {show: true}
+        }
+      },
+      calculable: true,
+      xAxis: [
+        {
+          type: 'category',
+          boundaryGap: false,
+          data: timeArray
+        }
+      ],
+      yAxis: [
+        {
+          type: 'value',
+          axisLabel: {
+            formatter: '{value}'
+          }
+        }
+      ],
+      series: seriesObject
+    };
+
+    if (option && typeof option === "object") {
+      myChart.setOption(option, true);
+    }
+  },
     }
   };
 </script>

@@ -15,7 +15,7 @@
         </el-upload>
 
         <el-input style="margin: 10px 0" v-model="pictureType"  placeholder="请输入检查名"></el-input>
-        <div class="block">
+        <!--<div class="block">
           <el-date-picker
             v-model="date"
             align="right"
@@ -23,7 +23,7 @@
             placeholder="选择日期"
             :picker-options="pickerOptions">
           </el-date-picker>
-        </div>
+        </div>-->
         <el-button type="info" @click="upload" plain style="float: right;margin: 5px;margin-right: 15px">确定</el-button>
       </div>
     </el-card>
@@ -43,7 +43,7 @@
         fileList: [],
         imgId:'',
         pictureType:'',
-        pickerOptions: {
+       /* pickerOptions: {
           disabledDate (time) {
             return time.getTime() > Date.now()
           },
@@ -68,7 +68,7 @@
             }
           }]
         },
-        date: ''
+        date: ''*/
       }
     },
     methods: {
@@ -76,7 +76,7 @@
         this.imgId=response.id;
       },
       upload(){
-        if(this.imgId==''||this. pictureType==''||this.date=='')
+        if(this.imgId==''||this. pictureType=='')
         {
           that.$message('请补全病历信息后再试');
         }
@@ -86,10 +86,15 @@
           {
             userId:that.user.userId,
             image_id:that.imgId,
-            date:that.date,
             type:that.pictureType,
           }).then(function (res) {
-          console.log(res.data)
+          if(res.data.status==false)
+          {
+            that.$message('上传失败，请稍后再试');
+          }
+          else {
+            that.$router.push('./index');
+          }
         })
         }
       }
