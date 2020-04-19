@@ -15,9 +15,10 @@
   },
   "dependencies": {
     "axios": "^0.19.2",
+    "cropper": "^4.1.0",
     "echarts": "^4.6.0",
     "element-ui": "^2.13.0",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "layui": "0.0.1",
     "scss-loader": "0.0.1",
     "vue": "^2.5.2",

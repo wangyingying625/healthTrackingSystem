@@ -8,6 +8,8 @@ import App from './App.vue';
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import global_ from './global.vue';
+import VueCropper from 'vue-cropper';
+Vue.use(VueCropper);
 /* eslint-disable */
 Vue.use(ElementUI);
 Vue.use(Router);
