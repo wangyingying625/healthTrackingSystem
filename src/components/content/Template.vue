@@ -1,14 +1,171 @@
 <template>
-    <div>
-        <el-card class="box-card"  shadow="hover">
-            <div>
-                <el-input v-model="input" ></el-input>
-                <el-button type="info" plain style="float: right;margin: 5px;margin-right: 15px">确定</el-button>
-            </div>
-        </el-card>
-    </div>
+  <div>
+    <el-card class="box-card" shadow="hover">
+      <div class="box">
+        <el-select v-model="value" style="margin: 0 15px" placeholder="请选择化验模板">
+          <el-option
+            v-for="item in options"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
+        <el-link type="info" @click="getTempInformation">新建模板</el-link>
+      </div>
+      <el-upload
+        class="upload-demo"
+        name="file"
+        action="http://127.0.0.1:8080/api/upload/uploadPicture"
+        :data="user"
+        :on-success="getImg"
+        list-type="picture">
+        <el-button size="small" type="primary">点击上传</el-button>
+        <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+      </el-upload>
+      <div class="cropper-content">
+        <div class="cropper" style="text-align:center">
+          <vueCropper
+            ref="cropper"
+            :img="option.img"
+            :outputSize="option.size"
+            :outputType="option.outputType"
+            :info="true"
+            :full="option.full"
+            :canMove="option.canMove"
+            :canMoveBox="option.canMoveBox"
+            :original="option.original"
+            :autoCrop="option.autoCrop"
+            :fixed="option.fixed"
+            :fixedNumber="option.fixedNumber"
+            :centerBox="option.centerBox"
+            :infoTrue="option.infoTrue"
+            :fixedBox="option.fixedBox"
+            @realTime="realTime"
+          ></vueCropper>
+        </div>
+        <el-button v-if="isShowCropper"
+                   type="danger"
+                   @click="finish">确定裁剪图片
+        </el-button>
+
+      </div>
+      <el-input style="margin: 10px 0" v-model="pictureType" placeholder="请输入检查名"></el-input>
+      <el-button type="info" @click="upload" plain style="float: right;margin: 5px;margin-right: 15px">确定</el-button>
+    </el-card>
+  </div>
 </template>
 <style>
+  .box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .cropper {
+    width: auto;
+    height: 300px;
+  }
 </style>
 <script>
+  import global_ from '../../global.vue'
+  import axios from 'axios'
+  import Cropper from 'cropper'
+  import $ from 'jquery'
+  import ElButton from '../../../node_modules/element-ui/packages/button/src/button.vue'
+
+  export default {
+    components: {ElButton},
+    data () {
+      return {
+        user: {userId: ''},
+        option: {
+          img: '', // 裁剪图片的地址
+          info: true, // 裁剪框的大小信息
+          outputSize: 0.8, // 裁剪生成图片的质量
+          outputType: 'jpeg', // 裁剪生成图片的格式
+          canScale: false, // 图片是否允许滚轮缩放
+          autoCrop: true, // 是否默认生成截图框
+           autoCropWidth: 300, // 默认生成截图框宽度
+           autoCropHeight: 200, // 默认生成截图框高度
+          fixedBox: true, // 固定截图框大小 不允许改变
+          fixed: true, // 是否开启截图框宽高固定比例
+          fixedNumber: [7, 5], // 截图框的宽高比例
+          full: true, // 是否输出原图比例的截图
+          canMoveBox: false, // 截图框能否拖动
+          original: false, // 上传图片按照原始比例渲染
+          centerBox: false, // 截图框是否被限制在图片里面
+          infoTrue: true // true 为展示真实输出图片宽高 false 展示看到的截图框宽高
+        },
+        url:'',
+        isShowCropper: true,            //是否显示截图框
+        fileUpload: null,
+        fileinfo: {},
+        form: {},
+        options: [{
+          value: '选项1',
+          label: '黄金糕'
+        }, {
+          value: '选项2',
+          label: '双皮奶'
+        }, {
+          value: '选项3',
+          label: '蚵仔煎'
+        }, {
+          value: '选项4',
+          label: '龙须面'
+        }, {
+          value: '选项5',
+          label: '北京烤鸭'
+        }],
+        value: '',
+        pictureName: '',
+        imgId: ''
+      }
+    },
+    mounted () {
+
+    },
+    created: function () {
+      this.user.userId = global_.user.id
+      console.log(this.user.userId)
+      console.log(this.user)
+      var that=this;
+      axios.get('http://127.0.0.1:8080/api/upload/getTemp', {
+        params:{
+          user_id:id
+        }
+      }).then(function (res) {
+        console.log(res.data)
+        //that.options=res.data
+      })
+    },
+    methods: {
+      getImg (response, file) {
+        this.imgId = response.id
+        this.option.img= file.url
+      },
+      // 点击裁剪，这一步是可以拿到处理后的地址
+      finish() {
+        this.$refs.cropper.getCropBlob((data) => {
+          // do something
+          console.log(data)
+          var objectURL = URL.createObjectURL(data);
+          console.log(objectURL);
+        })
+      },
+      getTempInformation(){
+        var content= '<div id="create"><table class="layui-table"><colgroup><col width="150"><col width="200"><col></colgroup><thead><tr><th>中文名</th><th>英文名</th><th>上限</th><th>下限</th><th>单位</th><th><p style="cursor: pointer;color: #FF5722"  onclick="addRow()">添加一行</p></th></tr></thead><tbody id="tBody"></tbody></table>        <input type="text" class="form-control" style="margin-bottom: 10px" placeholder="请输入化验名称"  name="type" ><input class="form-control"   type="text" placeholder="请输入模板名称" required name="tempName"><button  class="btn btn-primary btn-block" style="width: 100px;margin-left:990px">确定</button></div>'
+      },
+      createTemp(){
+        var that=this;
+        axios.get('http://127.0.0.1:8080/api/upload/createTemp', {
+          params:{
+            user_id:id
+          }
+        }).then(function (res) {
+          console.log(res.data)
+          //that.options=res.data
+        })
+      },
+    }
+  }
 </script>

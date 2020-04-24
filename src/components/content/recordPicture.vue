@@ -43,7 +43,7 @@
                 <div class="block">
 
                     <el-image :src="url" :preview-src-list="srcList"></el-image>
-                    <span class="demonstration">默认</span>
+                    <span class="demonstration">{{pictureName}}</span>
                 </div>
             </div>
         </div></el-col>

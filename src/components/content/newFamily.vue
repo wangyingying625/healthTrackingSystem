@@ -1,16 +1,16 @@
 <template>
     <div>
-        <el-collapse v-model="activeNames" @change="handleChange">
-            <el-collapse-item title="新建家庭" name="1">
+        <el-collapse>
+            <el-collapse-item title="新建家庭">
                 <div>
-                    <el-input v-model="input" placeholder="请输入家庭名"></el-input>
-                    <el-button type="info" plain style="float: right;margin: 5px;margin-right: 15px">确定</el-button>
+                    <el-input v-model="familyName"  placeholder="请输入家庭名"></el-input>
+                    <el-button @click="newFamily" type="info" plain style="float: right;margin: 5px;margin-right: 15px">确定</el-button>
                 </div>
             </el-collapse-item>
-            <el-collapse-item title="加入已有家庭" name="2">
+            <el-collapse-item title="加入已有家庭">
                 <div>
-                    <el-input v-model="input" placeholder="请输入家庭账号"></el-input>
-                    <el-button type="info" plain style="float: right;margin: 5px;margin-right: 15px">确定</el-button>
+                    <el-input v-model="familyId" placeholder="请输入家庭账号"></el-input>
+                    <el-button @click="joinFamily" type="info" plain style="float: right;margin: 5px;margin-right: 15px">确定</el-button>
                 </div>
             </el-collapse-item>
         </el-collapse>
@@ -20,9 +20,71 @@
 
 </style>
 <script>
-    import ElButton from "../node_modules/element-ui/packages/button/src/button.vue";
-
+  import axios from  'axios';
+  import global_ from '../../global.vue';
     export default {
-        components: {ElButton}
+      data(){
+        return{
+          familyName:'',
+          familyId:''
+        }
+      },
+      methods:{
+        joinFamily() {
+          var that=this;
+          if(this.familyId=='')
+          {
+            this.$message('账号不能为空');
+          }
+          else {
+            axios.get('http://127.0.0.1:8080/api/family/join',{
+              params:{
+                id:that.familyId
+              },
+              headers:{
+                'Authorization': global_.token
+              }
+            }).then(function (res) {
+              if(res.data.status==true)
+              {
+                global_.user.family_id=that.familyId;
+                that.$router.push('/family');
+                that.$message('申请成功，等待管理员同意');
+
+              }
+            })
+          }
+        },
+        newFamily() {
+          var that=this;
+          if(this.familyName==''){
+            this.$message('名称不能为空');
+          }
+          else {
+            axios.get('http://127.0.0.1:8080/api/family/newFamily',{
+              params:{
+                name:that.familyName
+              },
+              headers:{
+                'Authorization': global_.token
+              }
+            }).then(function (res) {
+                global_.user.family_id=res.data.id;
+              that.$router.push('/family');
+            })
+          }
+        }
+      },
+      beforeRouteEnter(to, from, next) {
+        console.log(global_.user);
+        console.log(global_.user.family_id);
+        if (global_.user.family_id && global_.user.family_id!=0) {
+
+          next({path: '/family'});
+        }
+        else {
+          next();
+        }
+      }
     }
 </script>

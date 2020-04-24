@@ -60,19 +60,20 @@
   },
     methods:{
     edit:function () {
-      var that=this;
-      console.log(this.user);
+      var parms=JSON.stringify(this.user);
       axios.post('http://127.0.0.1:8080/api/v1/edit',
         {
-          user:that.user
+          user:parms
         },
         {
         headers: {
           'Authorization': global_.token,
         }
       }).then(function (res) {
+        if(res.data.status=='success')
+        {alert('修改成功')
         console.log(res.data);
-        global_.user=that.user;
+        global_.user=that.user;}
       })
     }
     },
@@ -85,7 +86,6 @@
           }
         }).then(function (res) {
           global_.user=res.data.data;
-          console.log(global_.user)
           this.user = global_.user;
         })
       }
