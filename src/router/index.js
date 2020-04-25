@@ -13,6 +13,7 @@ import login from '@/components/login/login';
 import register from '@/components/login/register';
 import loginAndRegister from '@/components/login/login_register';
 import layout from '@/components/layout/layout';
+import newTemp from '@/components/content/newTemp'
 
 Vue.use(Router);
 /* 初始路由 */
@@ -112,6 +113,11 @@ export default new Router({
           id:9,
           path:'/newFamily',
           component:newFamily,
+        },
+        {
+          id: 10,
+          path: '/newTemp',
+          component: newTemp,
         }
       ]
     }
