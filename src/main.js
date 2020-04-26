@@ -7,12 +7,15 @@ import Router from 'vue-router';
 import App from './App.vue';
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
+import VueResource from 'vue-resource';
 import global_ from './global.vue';
-import VueCropper from 'vue-cropper';
+import VueCropper from 'cropper';
 Vue.use(VueCropper);
 /* eslint-disable */
 Vue.use(ElementUI);
+Vue.use(VueResource)
 Vue.use(Router);
+Vue.http.options.emulateJSON = true;
 Vue.config.productionTip = false;
 router.beforeEach((to, from, next) => {
   global_.token=localStorage.token;
