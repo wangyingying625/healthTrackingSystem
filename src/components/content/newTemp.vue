@@ -1,12 +1,12 @@
 <template>
   <div>
     <form :model="form" id="form" ref="form">
-      <table>
-        <colgroup>
+      <table style="width: 100%">
+       <!-- <colgroup>
           <col width="150">
           <col width="200">
           <col>
-        </colgroup>
+        </colgroup>-->
         <thead>
         <tr>
           <th>中文名</th>
@@ -19,23 +19,26 @@
         </thead>
         <tbody id="tBody">
         <tr v-for="(item,i) in form.temp" :key="i">
-          <td><input required v-model="item.name_ch" type="text"></td>
-          <td><input  v-model="item.name_en" type="text"></td>
-          <td><input type="text" v-model="item.upper_limit"></td>
-          <td><input type="text" v-model="item.lower_limit"></td>
-          <td><input type="text" v-model="item.unit"></td>
+          <td><el-input required v-model="item.name_ch" type="text"></el-input></td>
+          <td><el-input  v-model="item.name_en" type="text"></el-input></td>
+          <td><el-input type="text" v-model="item.upper_limit"></el-input></td>
+          <td><el-input type="text" v-model="item.lower_limit"></el-input></td>
+          <td><el-input type="text" v-model="item.unit"></el-input></td>
         </tr>
         </tbody>
       </table>
-      <input style="margin-bottom: 10px" placeholder="请输入化验名称" v-model="form.type">
-      <input type="text" placeholder="请输入模板名称" v-model="form.tempName">
+      <el-input class="name" placeholder="请输入化验名称" v-model="form.type"></el-input>
+      <el-input class="name" type="text" placeholder="请输入模板名称" v-model="form.tempName"></el-input>
     </form>
-    <el-button @click="submitForm">确定</el-button>
+    <el-button style="float: right" @click="submitForm">确定</el-button>
   </div>
 </template>
 <style>
   .hidden {
     display: none;
+  }
+  .name{
+    margin: 10px 0;
   }
 </style>
 <script type="text/ecmascript-6">

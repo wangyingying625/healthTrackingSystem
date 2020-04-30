@@ -10,7 +10,32 @@
             :value="item.value">
           </el-option>
         </el-select>
-
+        <el-table
+          :data="tableData"
+          style="width: 100%">
+          <el-table-column
+            prop="name_ch"
+            label="中文名"
+            width="180">
+          </el-table-column>
+          <el-table-column
+            prop="name_en"
+            label="英文名"
+            width="180">
+          </el-table-column>
+          <el-table-column
+            prop="upper_limit"
+            label="上限">
+          </el-table-column>
+          <el-table-column
+            prop="lower_limit"
+            label="下限">
+          </el-table-column>
+          <el-table-column
+            prop="unit"
+            label="单位">
+          </el-table-column>
+        </el-table>
 
         <router-link to="/newTemp">新建模板</router-link>
         <el-upload v-if="temp"
@@ -75,7 +100,12 @@
     data () {
       return {
         user: {userId: ''},
-        temp: '',
+        tableData: [{
+          date: '2016-05-02',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1518 弄'
+        }],
+        tempList: [],
         option: {
           img: '', // 裁剪图片的地址
           info: true, // 裁剪框的大小信息
@@ -99,6 +129,7 @@
         fileUpload: null,
         fileinfo: {},
         form: {},
+        tempInformation:'',
         options: [{
           value: '选项1',
           label: '黄金糕'
@@ -116,8 +147,6 @@
           label: '北京烤鸭'
         }],
         value: '',
-        pictureName: '',
-        pictureType: '',
         imgId: '',
       }
 
@@ -130,19 +159,30 @@
       console.log(this.user.userId)
       console.log(this.user)
       var that = this
-      axios.get('http://127.0.0.1:8080/api/upload/getTemp', {
+      axios.get('http://127.0.0.1:8080/api/upload/showTemp', {
         params: {
           user_id: global_.user.id
         }
       }).then(function (res) {
         console.log(res.data)
-        //that.options=res.data
+        that.tempList=res.data
       })
     },
     methods: {
       getImg (response, file) {
         this.imgId = response.id
         this.option.img = file.url
+      },
+      getTempInformation(name){
+        var that=this;
+        axios.get('http://127.0.0.1:8080/api/upload/tempInformation', {
+          params: {
+            tempName: name
+          }
+        }).then(function (res) {
+          console.log(res.data)
+          that.tempInformation=res.data
+        })
       },
       // 点击裁剪，这一步是可以拿到处理后的地址
       finish () {

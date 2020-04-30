@@ -8,7 +8,7 @@
     </div>
     <div class="box">
       <span>&nbsp;&nbsp;密 码：</span>
-      <el-input class="row" v-model="password"
+      <el-input class="row" v-model="password" show-password
                 placeholder="请输入密码">
       </el-input>
     </div>

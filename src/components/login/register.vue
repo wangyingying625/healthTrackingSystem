@@ -19,6 +19,12 @@
       </el-input>
     </div>
     <div class="box">
+      <span>确认密码：</span>
+      <el-input class="row"
+                placeholder="请确认密码">
+      </el-input>
+    </div>
+    <div class="box">
       <span>身高：</span>
       <el-input class="row" v-model="height"
                 placeholder="请输入身高">
