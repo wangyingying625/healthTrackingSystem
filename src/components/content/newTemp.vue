@@ -2,11 +2,6 @@
   <div>
     <form :model="form" id="form" ref="form">
       <table style="width: 100%">
-       <!-- <colgroup>
-          <col width="150">
-          <col width="200">
-          <col>
-        </colgroup>-->
         <thead>
         <tr>
           <th>中文名</th>

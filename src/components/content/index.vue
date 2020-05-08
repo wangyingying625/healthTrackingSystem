@@ -3,7 +3,6 @@
     <!--<el-row style="margin-bottom: 50px">
       <el-col :span="24" style="height: 350px"><div id="main" class="grid-content bg-purple-dark" style="width: 100%;height: 100%"></div></el-col>
     </el-row>-->
-    <el-button @click="tr">感谢使用，点击查看健康信息</el-button>
     <el-row>
       <el-col  v-for="(item,i) in arrayMsg" :id="'card' + i" :key="i" :span="12"  style="height: 350px">
         <div  :id="gernerateId(i)" class="grid-content bg-purple" style="width: 100%;height: 100%"></div>
@@ -26,8 +25,20 @@
     data () {
       return {
         msg: {},
+        finish: false,
         arrayMsg: []
       };
+    },
+    watch: {
+      finish: {
+        immediate: true,
+        handler() {
+          var that=this
+          this.$nextTick(() => {
+            that.tr()
+          })
+        }
+      }
     },
     beforeRouteEnter (to, from, next) {
       if (global_.token) {
@@ -42,7 +53,6 @@
     },
     created: function () {
       var that = this;
-
     },
     mounted: function () {
       console.log('mounted');
@@ -56,6 +66,7 @@
         for (var j in that.msg) {
           that.arrayMsg.push(that.msg[j]);
         }
+        that.finish=true
       })
 
 
@@ -73,7 +84,6 @@
           var id="container"+times;
           that.picture(key,id);
           times++;
-
         }
       },
       mapToObject(indictors) {

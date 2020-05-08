@@ -22,6 +22,7 @@
     "layui": "0.0.1",
     "scss-loader": "0.0.1",
     "vue": "^2.5.2",
+    "vue-cropper": "^0.5.2",
     "vue-resource": "^1.5.1",
     "vue-router": "^3.0.1",
     "vue-wechat-title": "^2.0.5",

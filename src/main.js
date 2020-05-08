@@ -10,11 +10,11 @@ import 'element-ui/lib/theme-chalk/index.css';
 import VueResource from 'vue-resource';
 import global_ from './global.vue';
 import VueCropper from 'cropper';
-Vue.use(VueCropper);
 /* eslint-disable */
 Vue.use(ElementUI);
 Vue.use(VueResource)
 Vue.use(Router);
+Vue.use(VueCropper)
 Vue.http.options.emulateJSON = true;
 Vue.config.productionTip = false;
 router.beforeEach((to, from, next) => {

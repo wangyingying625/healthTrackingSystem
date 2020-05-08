@@ -47,7 +47,7 @@
       }
     },
     methods: {
-      login: function () {
+      login() {
         var that=this;
         axios.post('http://127.0.0.1:8080/api/v1/login', {
             name:that.name,

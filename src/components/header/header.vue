@@ -61,6 +61,7 @@
           }
         }).then(function (res) {
           global_.user = res.data.data;
+          localStorage.userId=res.data.id
         })
           .catch(function (err) {
             console.log(err)

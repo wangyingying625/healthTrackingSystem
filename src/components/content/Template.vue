@@ -4,13 +4,13 @@
       <div class="box">
         <el-select v-model="value" style="margin: 0 15px" placeholder="请选择化验模板">
           <el-option
-            v-for="item in options"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value">
+            v-for="item in tempList"
+            :key="item.id"
+            :label="item.name"
+            v-model="item.name">
           </el-option>
         </el-select>
-        <el-table
+        <el-table v-if="showTable"
           :data="tableData"
           style="width: 100%">
           <el-table-column
@@ -38,7 +38,7 @@
         </el-table>
 
         <router-link to="/newTemp">新建模板</router-link>
-        <el-upload v-if="temp"
+        <el-upload style="margin-top: 5px;margin-left: 10px"
                    class="upload-demo"
                    name="file"
                    action="http://127.0.0.1:8080/api/upload/uploadPicture"
@@ -91,20 +91,20 @@
 <script>
   import global_ from '../../global.vue'
   import axios from 'axios'
-  import Cropper from 'cropper';
   import Vue from 'vue';
   import $ from 'jquery'
+  import { VueCropper }  from 'vue-cropper'
   import ElButton from '../../../node_modules/element-ui/packages/button/src/button.vue';
   export default {
-    components: {ElButton},
+    components: {ElButton, VueCropper},
     data () {
       return {
         user: {userId: ''},
+        tempId: '',
+        showTable:'',
+        temp:false,
         tableData: [{
-          date: '2016-05-02',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }],
+         }],
         tempList: [],
         option: {
           img: '', // 裁剪图片的地址
@@ -155,29 +155,32 @@
 
     },
     created: function () {
-      this.user.userId = global_.user.id
-      console.log(this.user.userId)
-      console.log(this.user)
-      var that = this
-      axios.get('http://127.0.0.1:8080/api/upload/showTemp', {
-        params: {
-          user_id: global_.user.id
-        }
-      }).then(function (res) {
-        console.log(res.data)
-        that.tempList=res.data
-      })
+      this.getTempList()
+      this.user.userId= global_.user.id ;
     },
     methods: {
       getImg (response, file) {
         this.imgId = response.id
         this.option.img = file.url
       },
+      //获取所有模板的模板名用来显示下拉列表
+      getTempList(){
+        var that=this;
+        axios.get('http://127.0.0.1:8080/api/upload/showTempList',{
+          headers: {
+            'Authorization': global_.token,
+          }
+        }).then(function (res) {
+          that.tempList=res.data
+          console.log(res.data)
+        })
+      },
+      //用来根据下拉列表的名获取模板具体信息小时表格
       getTempInformation(name){
         var that=this;
-        axios.get('http://127.0.0.1:8080/api/upload/tempInformation', {
+        axios.get('http://127.0.0.1:8080/api/upload/getTemp', {
           params: {
-            tempName: name
+            TemplateNameId: tempId
           }
         }).then(function (res) {
           console.log(res.data)
