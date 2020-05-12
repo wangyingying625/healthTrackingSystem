@@ -25,11 +25,41 @@
           </el-date-picker>
         </div>-->
         <el-button type="info" @click="upload" plain style="float: right;margin: 5px;margin-right: 15px">确定</el-button>
+        <el-dialog title="识别结果" :visible.sync="dialogTableVisible" class="dialog">
+          <table>
+            <thead>
+            <tr>
+              <td>中文名</td>
+              <td>英文名</td>
+              <td>值</td>
+              <td>上限</td>
+              <td>下限</td>
+              <td>单位</td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="(item,i) in indicators" :key="i">
+              <td><el-input v-model="item.name_ch"></el-input></td>
+              <td><el-input v-model="item.name_en"></el-input></td>
+              <td><el-input v-model="item.value"></el-input></td>
+              <td><el-input v-model="item.upper_limit"></el-input></td>
+              <td><el-input v-model="item.lower_limit"></el-input></td>
+              <td><el-input v-model="item.unit"></el-input></td>
+            </tr>
+            </tbody>
+          </table>
+          <el-button @click="submitChange">确定</el-button>
+        </el-dialog>
       </div>
     </el-card>
   </div>
 </template>
-<style>
+<style  scoped>
+  .dialog table {
+    width: 100%;}
+  table tr{
+    width: 100%;
+  }
 </style>
 <script>
   import global_ from '../../global.vue';
@@ -38,42 +68,28 @@
     data () {
       return {
         pictureName: '',
+        indicators:'',
+        dialogTableVisible: false,
         file:'',
         user:{userId:''},
         fileList: [],
         imgId:'',
         pictureType:'',
-       /* pickerOptions: {
-          disabledDate (time) {
-            return time.getTime() > Date.now()
-          },
-          shortcuts: [{
-            text: '今天',
-            onClick (picker) {
-              picker.$emit('pick', new Date())
-            }
-          }, {
-            text: '昨天',
-            onClick (picker) {
-              const date = new Date()
-              date.setTime(date.getTime() - 3600 * 1000 * 24)
-              picker.$emit('pick', date)
-            }
-          }, {
-            text: '一周前',
-            onClick (picker) {
-              const date = new Date()
-              date.setTime(date.getTime() - 3600 * 1000 * 24 * 7)
-              picker.$emit('pick', date)
-            }
-          }]
-        },
-        date: ''*/
       }
     },
     methods: {
       getImgId(response, file, fileList){
         this.imgId=response.id;
+      },
+      submitChange(){
+        let that=this
+        axios.get('http://127.0.0.1:8080/api/upload/audi',{
+          params: {
+            list: that.indicators
+          }
+        }).then(function (res) {
+          that.$router.push('./index');
+        })
       },
       upload(){
         if(this.imgId==''||this. pictureType=='')
@@ -93,7 +109,9 @@
             that.$message('上传失败，请稍后再试');
           }
           else {
-            that.$router.push('./index');
+            console.log(res.data)
+            that.indicators=res.data.indicators
+            that.dialogTableVisible=true
           }
         })
         }
@@ -101,8 +119,6 @@
     },
     created:function () {
       this.user.userId= global_.user.id ;
-      console.log(this.user.userId)
-      console.log(this.user)
     }
   }
 </script>

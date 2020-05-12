@@ -51,9 +51,6 @@
     beforeCreate: function () {
 
     },
-    created: function () {
-      var that = this;
-    },
     mounted: function () {
       console.log('mounted');
       var that = this;

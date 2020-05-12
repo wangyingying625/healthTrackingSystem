@@ -10,16 +10,8 @@
           active-text-color="#ffd04b"
         >
          <el-menu-item index="1"> <router-link to="/index"  style="text-decoration: none">首页</router-link></el-menu-item>
-          <el-submenu index="2">
-            <template slot="title">病历记录</template>
-            <router-link to="/recordPicture"  style="text-decoration: none"><el-menu-item index="2-1">图片记录</el-menu-item></router-link>
-            <router-link to="/record" style="text-decoration: none"><el-menu-item index="2-2" >病历图表</el-menu-item></router-link>
-          </el-submenu>
-          <el-submenu index="3">
-            <template slot="title">上传病历</template>
-            <router-link to="/oneClick"  style="text-decoration: none"><el-menu-item index="3-1">一键上传</el-menu-item></router-link>
-            <router-link to="/Template" style="text-decoration: none"><el-menu-item index="3-2" >模板上传</el-menu-item></router-link>
-          </el-submenu>
+         <el-menu-item index="2"> <router-link to="/oneClick"  style="text-decoration: none">一键上传</router-link></el-menu-item>
+         <el-menu-item index="3"> <router-link to="/Template"  style="text-decoration: none">模板上传</router-link></el-menu-item>
           <el-menu-item index="4"><router-link to="/family" >我的家庭</router-link></el-menu-item>
           <el-submenu index="5">
             <template slot="title">个人中心</template>
@@ -60,6 +52,7 @@
             'Authorization': global_.token,
           }
         }).then(function (res) {
+          console.log(res.data)
           global_.user = res.data.data;
           localStorage.userId=res.data.id
         })

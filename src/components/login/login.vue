@@ -55,6 +55,7 @@
           }
         )
           .then(function (res) {
+            console.log(res)
             if (res == null) {
               alert('用户名或密码错误');
             }

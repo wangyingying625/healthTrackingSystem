@@ -7,6 +7,8 @@
             v-for="item in tempList"
             :key="item.id"
             :label="item.name"
+            :value="item.name"
+            :change="getTempInformation(item.name)"
             v-model="item.name">
           </el-option>
         </el-select>
@@ -75,7 +77,16 @@
 
         </div>
         <div v-if="temp">
-          <el-button type="info" @click="createTemp" plain style="float: right;margin: 5px;margin-right: 15px">确定
+          <div class="block">
+          <el-date-picker
+            v-model="date"
+            align="right"
+            type="date"
+            placeholder="选择日期"
+            :picker-options="pickerOptions">
+          </el-date-picker>
+        </div>
+          <el-button type="info" @click="upload" plain style="float: right;margin: 5px;margin-right: 15px">确定
           </el-button>
         </div>
       </div>
@@ -99,13 +110,16 @@
     components: {ElButton, VueCropper},
     data () {
       return {
+        date:'',
         user: {userId: ''},
         tempId: '',
+        choseTemp:'',
         showTable:'',
         temp:false,
         tableData: [{
          }],
         tempList: [],
+        blob:'',
         option: {
           img: '', // 裁剪图片的地址
           info: true, // 裁剪框的大小信息
@@ -130,24 +144,10 @@
         fileinfo: {},
         form: {},
         tempInformation:'',
-        options: [{
-          value: '选项1',
-          label: '黄金糕'
-        }, {
-          value: '选项2',
-          label: '双皮奶'
-        }, {
-          value: '选项3',
-          label: '蚵仔煎'
-        }, {
-          value: '选项4',
-          label: '龙须面'
-        }, {
-          value: '选项5',
-          label: '北京烤鸭'
-        }],
+        options: [],
         value: '',
         imgId: '',
+        imageID:''
       }
 
     },
@@ -156,6 +156,7 @@
     },
     created: function () {
       this.getTempList()
+      console.log(global_.user)
       this.user.userId= global_.user.id ;
     },
     methods: {
@@ -175,12 +176,12 @@
           console.log(res.data)
         })
       },
-      //用来根据下拉列表的名获取模板具体信息小时表格
+      //用来根据下拉列表的名获取模板具体信息小表格
       getTempInformation(name){
         var that=this;
         axios.get('http://127.0.0.1:8080/api/upload/getTemp', {
           params: {
-            TemplateNameId: tempId
+            TemplateNameId: name
           }
         }).then(function (res) {
           console.log(res.data)
@@ -189,13 +190,53 @@
       },
       // 点击裁剪，这一步是可以拿到处理后的地址
       finish () {
+        var that=this
         this.$refs.cropper.getCropBlob((data) => {
           // do something
           console.log(data)
           var objectURL = URL.createObjectURL(data)
           console.log(objectURL)
+          this.blob=objectURL
+          this.temp=true
+          // 模拟表单法
+          let formData = new FormData();
+          formData.append(' userId',that.user.userId);
+          formData.append('file', data);
+
+          let config = {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }
+
+          this.$http.post('http://127.0.0.1:8080/api/upload/uploadPicture', formData, config).then(function (res) {
+              that.imageID=res.data.id
+              console.log(res.data)
+          })
         })
       },
+      upload() {
+        var that=this;
+        if(this.date==''){
+          this.$message('请输入时间')
+        }else {
+          axios.post('http://127.0.0.1:8080/api/upload/identify',
+            {
+              userId: that.user.userId,
+              image_id: that.imageID,
+              date:that.date,
+              type: that.tempInformation.type,
+            }).then(function (res) {
+            if (res.data.status == false) {
+              that.$message('上传失败，请稍后再试');
+            } else {
+              console.log(res.data)
+              that.indicators = res.data.indicators
+              that.dialogTableVisible = true
+            }
+          })
+        }
+      }
     }
   }
 </script>
