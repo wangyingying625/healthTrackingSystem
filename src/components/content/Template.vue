@@ -2,14 +2,13 @@
   <div>
     <el-card class="box-card" shadow="hover">
       <div class="box">
-        <el-select v-model="value" style="margin: 0 15px" placeholder="请选择化验模板">
+        <el-select v-model="name" style="margin: 0 15px" placeholder="请选择化验模板">
           <el-option
             v-for="item in tempList"
             :key="item.id"
             :label="item.name"
             :value="item.name"
-            :change="getTempInformation(item.name)"
-            v-model="item.name">
+          >
           </el-option>
         </el-select>
         <el-table v-if="showTable"
@@ -80,14 +79,40 @@
           <div class="block">
           <el-date-picker
             v-model="date"
+            style="width: 100%;margin-top: 10px"
             align="right"
             type="date"
             placeholder="选择日期"
-            :picker-options="pickerOptions">
+          >
           </el-date-picker>
         </div>
           <el-button type="info" @click="upload" plain style="float: right;margin: 5px;margin-right: 15px">确定
           </el-button>
+          <el-dialog title="识别结果" :visible.sync="dialogTableVisible" class="dialog">
+            <table>
+              <thead>
+              <tr>
+                <td>中文名</td>
+                <td>英文名</td>
+                <td>值</td>
+                <td>上限</td>
+                <td>下限</td>
+                <td>单位</td>
+              </tr>
+              </thead>
+              <tbody>
+              <tr v-for="(item,i) in indicators" :key="i">
+                <td><el-input v-model="item.name_ch"></el-input></td>
+                <td><el-input v-model="item.name_en"></el-input></td>
+                <td><el-input v-model="item.value"></el-input></td>
+                <td><el-input v-model="item.upper_limit"></el-input></td>
+                <td><el-input v-model="item.lower_limit"></el-input></td>
+                <td><el-input v-model="item.unit"></el-input></td>
+              </tr>
+              </tbody>
+            </table>
+            <el-button @click="submitChange">确定</el-button>
+          </el-dialog>
         </div>
       </div>
     </el-card>
@@ -111,9 +136,10 @@
     data () {
       return {
         date:'',
+        indicators:'',
         user: {userId: ''},
         tempId: '',
-        choseTemp:'',
+        name:'',
         showTable:'',
         temp:false,
         tableData: [{
@@ -177,11 +203,11 @@
         })
       },
       //用来根据下拉列表的名获取模板具体信息小表格
-      getTempInformation(name){
+      getTempInformation(id){
         var that=this;
         axios.get('http://127.0.0.1:8080/api/upload/getTemp', {
           params: {
-            TemplateNameId: name
+            TemplateNameId: id
           }
         }).then(function (res) {
           console.log(res.data)
@@ -200,7 +226,6 @@
           this.temp=true
           // 模拟表单法
           let formData = new FormData();
-          formData.append(' userId',that.user.userId);
           formData.append('file', data);
 
           let config = {
@@ -209,10 +234,20 @@
             }
           }
 
-          this.$http.post('http://127.0.0.1:8080/api/upload/uploadPicture', formData, config).then(function (res) {
-              that.imageID=res.data.id
+          this.$http.post('http://127.0.0.1:8080/api/upload/uploadTempImg', formData, config).then(function (res) {
+              that.image=res.data
               console.log(res.data)
           })
+        })
+      },
+      submitChange(){
+        let that=this
+        axios.get('http://127.0.0.1:8080/api/upload/audi',{
+          params: {
+            list: that.indicators
+          }
+        }).then(function (res) {
+          that.$router.push('./index');
         })
       },
       upload() {
@@ -220,19 +255,20 @@
         if(this.date==''){
           this.$message('请输入时间')
         }else {
-          axios.post('http://127.0.0.1:8080/api/upload/identify',
+          axios.post('http://127.0.0.1:8080/api/upload/identifyTemp',
             {
-              userId: that.user.userId,
-              image_id: that.imageID,
+              user_id: that.user.userId,
+              image_id: that.imgId,
+              select: that.image.name,
               date:that.date,
-              type: that.tempInformation.type,
+              temp: that.name,
             }).then(function (res) {
             if (res.data.status == false) {
               that.$message('上传失败，请稍后再试');
             } else {
               console.log(res.data)
-              that.indicators = res.data.indicators
-              that.dialogTableVisible = true
+              that.indicators=res.data.indicators
+              that.dialogTableVisible=true
             }
           })
         }

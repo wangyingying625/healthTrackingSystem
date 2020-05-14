@@ -20,7 +20,7 @@
                         ;">移除成员
             </el-button>
             <el-button style="float: right; padding: 3px 0;color: rgb(84, 92, 100)
-                        ;" type="text">查看病历
+                        ;" type="text" @click="viewFamily(item.id,item.name)">查看病历
             </el-button>
           </div>
           <div class="text item">
@@ -199,6 +199,12 @@
             }
           })
         }
+      },
+      viewFamily(id,name) {
+        this.$router.push({
+          path: `/record`,
+          query: {id: id, name: name}
+        })
       },
       disband(){
         var that=this;

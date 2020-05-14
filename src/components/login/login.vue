@@ -17,20 +17,25 @@
     </div>
   </div>
 </template>
-<style scoped>
+<style scoped lang="less">
   #login {
     width: 60%;
     margin: auto;
     margin-top: 100px;
+    /deep/ .el-card{
+      width: 50%;
+      margin: 10px auto;
+    }
+    .box {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
   }
 
-  .box {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 20px;
-    margin-bottom: 20px;
-  }
+
 
   .row {
     width: 75%;
@@ -61,7 +66,9 @@
             }
             else {
               global_.token=res.data.data.token;
-              localStorage.token=global_.token;
+              localStorage.setItem(global_.token,'token');
+              localStorage.setItem(res.data.data.user,'user');
+              global_.user = res.data.data.user;
               that.$router.push('/index');
             }
           })

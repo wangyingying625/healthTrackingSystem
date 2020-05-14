@@ -56,7 +56,7 @@
       var that = this;
       axios.get('http://127.0.0.1:8080/api/upload/record', {
         headers: {
-          'Authorization': global_.token,
+          'Authorization': localStorage.token,
         }
       }).then(function (res) {
         that.msg = res.data;
