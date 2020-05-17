@@ -137,6 +137,7 @@
       return {
         date:'',
         indicators:'',
+        dialogTableVisible:false,
         user: {userId: ''},
         tempId: '',
         name:'',
@@ -182,8 +183,7 @@
     },
     created: function () {
       this.getTempList()
-      console.log(global_.user)
-      this.user.userId= global_.user.id ;
+      this.user.userId= localStorage.userId ;
     },
     methods: {
       getImg (response, file) {
@@ -199,19 +199,6 @@
           }
         }).then(function (res) {
           that.tempList=res.data
-          console.log(res.data)
-        })
-      },
-      //用来根据下拉列表的名获取模板具体信息小表格
-      getTempInformation(id){
-        var that=this;
-        axios.get('http://127.0.0.1:8080/api/upload/getTemp', {
-          params: {
-            TemplateNameId: id
-          }
-        }).then(function (res) {
-          console.log(res.data)
-          that.tempInformation=res.data
         })
       },
       // 点击裁剪，这一步是可以拿到处理后的地址
@@ -219,33 +206,26 @@
         var that=this
         this.$refs.cropper.getCropBlob((data) => {
           // do something
-          console.log(data)
           var objectURL = URL.createObjectURL(data)
-          console.log(objectURL)
           this.blob=objectURL
           this.temp=true
           // 模拟表单法
           let formData = new FormData();
           formData.append('file', data);
-
           let config = {
             headers: {
               'Content-Type': 'multipart/form-data'
             }
           }
-
           this.$http.post('http://127.0.0.1:8080/api/upload/uploadTempImg', formData, config).then(function (res) {
               that.image=res.data
-              console.log(res.data)
           })
         })
       },
       submitChange(){
         let that=this
         axios.get('http://127.0.0.1:8080/api/upload/audi',{
-          params: {
-            list: that.indicators
-          }
+          params: that.indicators
         }).then(function (res) {
           that.$router.push('./index');
         })
@@ -255,18 +235,19 @@
         if(this.date==''){
           this.$message('请输入时间')
         }else {
+          let date=Date.parse(that.date);
+          console.log(date)
           axios.post('http://127.0.0.1:8080/api/upload/identifyTemp',
             {
               user_id: that.user.userId,
               image_id: that.imgId,
               select: that.image.name,
-              date:that.date,
+              date:date,
               temp: that.name,
             }).then(function (res) {
             if (res.data.status == false) {
               that.$message('上传失败，请稍后再试');
             } else {
-              console.log(res.data)
               that.indicators=res.data.indicators
               that.dialogTableVisible=true
             }

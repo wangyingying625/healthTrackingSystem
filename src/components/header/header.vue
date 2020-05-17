@@ -44,23 +44,22 @@
         localStorage.token=null;
       }
     },
-    beforeCreate:function () {
-
-      if (!global_.user) {
-        axios.get('http://127.0.0.1:8080/api/v1/users/info', {
-          headers: {
-            'Authorization': global_.token,
-          }
-        }).then(function (res) {
-          console.log(res.data)
-          global_.user = res.data.data;
-          localStorage.userId=res.data.id
-        })
-          .catch(function (err) {
-            console.log(err)
-          })
-      }
-    }
+    // beforeCreate:function () {
+    //   if (!global_.user) {
+    //     axios.get('http://127.0.0.1:8080/api/v1/users/info', {
+    //       headers: {
+    //         'Authorization': global_.token,
+    //       }
+    //     }).then(function (res) {
+    //       console.log(res.data)
+    //       global_.user = res.data.data;
+    //       localStorage.userId=res.data.id
+    //     })
+    //       .catch(function (err) {
+    //         console.log(err)
+    //       })
+    //   }
+    // }
   };
 </script>
 <style scoped>

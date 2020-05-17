@@ -52,7 +52,6 @@
 
     },
     mounted: function () {
-      console.log('mounted');
       var that = this;
       axios.get('http://127.0.0.1:8080/api/upload/record', {
         headers: {
@@ -65,9 +64,6 @@
         }
         that.finish=true
       })
-
-
-
     },
     methods: {
       gernerateId: function (i){

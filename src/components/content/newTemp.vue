@@ -58,7 +58,7 @@
       }
     },
     created: function () {
-      this.form.user_id = global_.user.id
+      this.form.user_id = localStorage.userId
     },
     methods: {
     addRow() {
@@ -73,11 +73,9 @@
       this.form.temp.push(list);
     },
     submitForm() {
-      console.log(this.form)
       var that = this
       this.$http.post("http://127.0.0.1:8080/api/upload/createTemp",that.form).then(result => {
         // 注意： 通过 $http 获取到的数据，都在 result.body 中放着
-        var content = result.body;
         if (result.status === 200) {
           that.$router.push('/Template');
         } else {
@@ -85,17 +83,7 @@
           that.$message('添加失败，请稍后重试');
         }
       });
-
-
-    /*  console.log(this.form)
-      var that = this
-      axios.get('http://127.0.0.1:8080/api/upload/createTemp', {
-        params: this.from
-      }).then(function (res) {
-        console.log(res.data)
-        //that.options=res.data
-      })*/
-    },
+    }
   }
   }
 </script>

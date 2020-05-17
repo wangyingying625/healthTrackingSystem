@@ -6,7 +6,7 @@ export const GET = (url, params) => {
     .get(`${base}/${url}`, {
       params: params,
       headers: {
-        'Authorization': global_.token,
+        'Authorization': localStorage.token,
       }
     })
     .then(res => res)

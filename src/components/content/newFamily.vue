@@ -42,12 +42,13 @@
                 id:that.familyId
               },
               headers:{
-                'Authorization': global_.token
+                'Authorization': localStorage.token
               }
             }).then(function (res) {
               if(res.data.status==true)
               {
                 global_.user.family_id=that.familyId;
+                localStorage.user.family_id=that.familyId;
                 that.$router.push('/family');
                 that.$message('申请成功，等待管理员同意');
 
@@ -66,20 +67,21 @@
                 name:that.familyName
               },
               headers:{
-                'Authorization': global_.token
+                'Authorization': localStorage.token
               }
             }).then(function (res) {
                 global_.user.family_id=res.data.id;
+                let user=JSON.parse(localStorage.user);
+                user.family_id=res.data.id;
+                localStorage.setItem('user',user);
+                localStorage.familyId=res.data.id
               that.$router.push('/family');
             })
           }
         }
       },
       beforeRouteEnter(to, from, next) {
-        console.log(global_.user);
-        console.log(global_.user.family_id);
-        if (global_.user.family_id && global_.user.family_id!=0) {
-
+        if (localStorage.familyId && localStorage.familyId!=0) {
           next({path: '/family'});
         }
         else {

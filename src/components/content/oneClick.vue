@@ -84,9 +84,7 @@
       submitChange(){
         let that=this
         axios.get('http://127.0.0.1:8080/api/upload/audi',{
-          params: {
-            list: that.indicators
-          }
+          params: that.indicators
         }).then(function (res) {
           that.$router.push('./index');
         })
@@ -118,7 +116,7 @@
       }
     },
     created:function () {
-      this.user.userId= global_.user.id ;
+      this.user.userId= localStorage.userId ;
     }
   }
 </script>

@@ -130,14 +130,16 @@
         member:false,
         familyId:'',
         toJoin:false,
-        applyList:[]
+        applyList:[],
+        user:''
       }
     },
     created: function () {
+      this.user=JSON.parse(localStorage.user)
       var that = this
       axios.get('http://127.0.0.1:8080/api/family/familyList', {
         params: {
-          family_id: global_.user.family_id
+          family_id: that.user.familyId
         }
       }).then(function (res) {
         that.familyList = res.data.members,
@@ -146,23 +148,25 @@
       });
       axios.get('http://127.0.0.1:8080/api/v1/users/info', {
         headers: {
-          'Authorization': global_.token,
+          'Authorization':localStorage.token,
         }
       }).then(function (res) {
         global_.user = res.data.data;
-        if (global_.user.status == 'admin')
+        that.user=res.data.data;
+        localStorage.setItem('user',that.user)
+        if ( that.user.status == 'admin')
         { that.admin = true;
         that.toJoin=false;
         that.member=false;
           axios.get('http://127.0.0.1:8080/api/family/applyList', {
             headers: {
-              'Authorization': global_.token,
+              'Authorization': localStorage.token,
             }
           }).then(function (res) {
             that.applyList=res.data;
           });
         }
-        else if(global_.user.status=='member') {
+        else if( that.user.status=='member') {
           that.member = true;
           that.admin=false;
           that.toJoin=false
@@ -177,7 +181,7 @@
     methods: {
       del (id) {
         var that=this;
-        if(id==global_.user.id)
+        if(id==localStorage.userId)
           this.$message('不能移除自己');
         else {
           this.$alert('确定移除该成员吗', '标题名称', {
@@ -185,7 +189,7 @@
             callback: action => {
               axios.get('http://127.0.0.1:8080/api/family/delete', {
                 headers: {
-                  'Authorization': global_.token,
+                  'Authorization': localStorage.token,
                 },
                 params: {
                   id: id
@@ -213,11 +217,14 @@
           callback: action => {
             axios.get('http://127.0.0.1:8080/api/family/disband', {
               headers: {
-                'Authorization': global_.token,
+                'Authorization': localStorage.token,
               },
             }).then(function (res) {
               if(res.data.status==true)
               {
+                localStorage.familyId=0;
+                that.user.family_id=0;
+                localStorage.setItem('user',that.user);
                 that.$router.push('/newFamily');
               }
             })
@@ -231,11 +238,14 @@
           callback: action => {
             axios.get('http://127.0.0.1:8080/api/family/quitFamily', {
               headers: {
-                'Authorization': global_.token,
+                'Authorization': localStorage.token,
               },
             }).then(function (res) {
               if(res.data.status==true)
               {
+                localStorage.familyId=0;
+                that.user.family_id=0;
+                localStorage.setItem('user',that.user);
                 that.$router.push('/newFamily');
               }
             });
@@ -245,9 +255,10 @@
       },
 
       getMemberList(that){
+        let that1=this;
         axios.get('http://127.0.0.1:8080/api/family/familyList', {
           params: {
-            family_id: global_.user.family_id
+            family_id: that1.user.familyId
           }
         }).then(function (res) {
           that.familyList = res.data.members
@@ -257,7 +268,7 @@
       {
         axios.get('http://127.0.0.1:8080/api/family/applyList', {
           headers: {
-            'Authorization': global_.token,
+            'Authorization': localStorage.token,
           }
         }).then(function (res) {
           that.applyList=res.data;
@@ -267,7 +278,7 @@
         var that=this;
         axios.get('http://127.0.0.1:8080/api/family/accept', {
           headers: {
-            'Authorization': global_.token,
+            'Authorization': localStorage.token,
           },
           params:{
             user_id:id
@@ -288,7 +299,7 @@
         var that=this;
         axios.get('http://127.0.0.1:8080/api/family/refuse', {
           headers: {
-            'Authorization': global_.token,
+            'Authorization': localStorage.token,
           },
           params:{
             user_id:id
@@ -307,9 +318,7 @@
       }
     },
     beforeRouteEnter(to, from, next) {
-      console.log(global_.user);
-      console.log(global_.user.family_id);
-      if (global_.user.family_id && global_.user.family_id!=0) {
+      if (localStorage.familyId && localStorage.familyId!=0) {
       next();
       }
       else {

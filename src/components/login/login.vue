@@ -60,14 +60,17 @@
           }
         )
           .then(function (res) {
-            console.log(res)
             if (res == null) {
               alert('用户名或密码错误');
             }
             else {
               global_.token=res.data.data.token;
-              localStorage.setItem(global_.token,'token');
-              localStorage.setItem(res.data.data.user,'user');
+              localStorage.setItem('token',global_.token);
+              localStorage.setItem('userId',res.data.data.user.id);
+              localStorage.setItem('familyId',res.data.data.user.family_id);
+              let data=JSON.stringify(res.data.data.user)
+              localStorage.setItem('user',data);
+              console.log(JSON.parse(localStorage.user).id)
               global_.user = res.data.data.user;
               that.$router.push('/index');
             }
