@@ -1,5 +1,5 @@
 <template>
-  <div id="login">
+  <div id="login" v-loading="loading">
     <div class="box">
       <span >用户名：</span>
       <el-input class="row" v-model="name"
@@ -48,11 +48,13 @@
     data() {
       return {
         name: '',
+        loading:false,
         password: ''
       }
     },
     methods: {
       login() {
+        this.loading=true
         var that=this;
         axios.post('http://127.0.0.1:8080/api/v1/login', {
             name:that.name,
@@ -67,11 +69,12 @@
               global_.token=res.data.data.token;
               localStorage.setItem('token',global_.token);
               localStorage.setItem('userId',res.data.data.user.id);
-              localStorage.setItem('familyId',res.data.data.user.family_id);
+              localStorage.setItem('familyId',res.data.data.user.family_id||0);
               let data=JSON.stringify(res.data.data.user)
               localStorage.setItem('user',data);
               console.log(JSON.parse(localStorage.user).id)
               global_.user = res.data.data.user;
+              that.loading=false
               that.$router.push('/index');
             }
           })

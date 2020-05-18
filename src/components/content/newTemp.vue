@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-loading="loading">
     <form :model="form" id="form" ref="form">
       <table style="width: 100%">
         <thead>

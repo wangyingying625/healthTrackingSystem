@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-loading="loading">
         <el-collapse>
             <el-collapse-item title="新建家庭">
                 <div>
@@ -26,6 +26,7 @@
       data(){
         return{
           familyName:'',
+          loading:false,
           familyId:''
         }
       },
@@ -37,6 +38,7 @@
             this.$message('账号不能为空');
           }
           else {
+            that.loading=true
             axios.get('http://127.0.0.1:8080/api/family/join',{
               params:{
                 id:that.familyId
@@ -47,8 +49,12 @@
             }).then(function (res) {
               if(res.data.status==true)
               {
-                global_.user.family_id=that.familyId;
-                localStorage.user.family_id=that.familyId;
+                let user=JSON.parse(localStorage.user)
+                user.family_id=that.familyId;
+                user.status='joining'
+                localStorage.setItem('familyId',that.familyId);
+                localStorage.setItem('user',JSON.stringify(user));
+                that.loading=false
                 that.$router.push('/family');
                 that.$message('申请成功，等待管理员同意');
 
@@ -70,23 +76,23 @@
                 'Authorization': localStorage.token
               }
             }).then(function (res) {
-                global_.user.family_id=res.data.id;
                 let user=JSON.parse(localStorage.user);
                 user.family_id=res.data.id;
-                localStorage.setItem('user',user);
-                localStorage.familyId=res.data.id
+                user.status='admin'
+                localStorage.setItem('user',JSON.stringify(user));
+                localStorage.setItem('familyId',user.family_id);
               that.$router.push('/family');
             })
           }
         }
       },
-      beforeRouteEnter(to, from, next) {
-        if (localStorage.familyId && localStorage.familyId!=0) {
-          next({path: '/family'});
-        }
-        else {
-          next();
-        }
-      }
+      // beforeRouteEnter(to, from, next) {
+      //   if (localStorage.familyId && localStorage.familyId!=0) {
+      //     next({path: '/family'});
+      //   }
+      //   else {
+      //     next();
+      //   }
+      // }
     }
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-loading="loading">
     <el-card class="box-card" shadow="hover">
       <div class="box">
         <el-select v-model="name" style="margin: 0 15px" placeholder="请选择化验模板">
@@ -136,6 +136,7 @@
     data () {
       return {
         date:'',
+        loading:false,
         indicators:'',
         dialogTableVisible:false,
         user: {userId: ''},
@@ -231,28 +232,25 @@
         })
       },
       upload() {
-        var that=this;
-        if(this.date==''){
-          this.$message('请输入时间')
-        }else {
-          let date=Date.parse(that.date);
-          console.log(date)
-          axios.post('http://127.0.0.1:8080/api/upload/identifyTemp',
-            {
-              user_id: that.user.userId,
-              image_id: that.imgId,
-              select: that.image.name,
-              date:date,
-              temp: that.name,
-            }).then(function (res) {
-            if (res.data.status == false) {
-              that.$message('上传失败，请稍后再试');
-            } else {
-              that.indicators=res.data.indicators
-              that.dialogTableVisible=true
-            }
-          })
-        }
+        var that = this;
+        this.loading=true
+        let date = Date.parse(that.date);
+        console.log(date)
+        axios.post('http://127.0.0.1:8080/api/upload/identifyTemp',
+          {
+            user_id: that.user.userId,
+            image_id: that.imgId,
+            select: that.image.name,
+            temp: that.name,
+          }).then(function (res) {
+          if (res.data.status == false) {
+            that.$message('上传失败，请稍后再试');
+          } else {
+            that.indicators = res.data.indicators
+            that.loading=false
+            that.dialogTableVisible = true
+          }
+        })
       }
     }
   }

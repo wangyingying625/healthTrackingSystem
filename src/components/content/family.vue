@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-loading="loading">
     <el-card shadow="always" v-if="admin && applyList.length!=0"  v-for="(item,i) in applyList" :key="i">
       <div>
         <strong>{{item.name}}</strong>申请加入
@@ -119,7 +119,6 @@
   import global_ from '../../global.vue'
   import axios from 'axios'
   import ElCard from '../../../node_modules/element-ui/packages/card/src/main.vue'
-
   export default {
     components: {ElCard},
     data () {
@@ -128,55 +127,58 @@
         familyName:'',
         admin:false,
         member:false,
+        loading:false,
         familyId:'',
         toJoin:false,
         applyList:[],
         user:''
       }
     },
-    created: function () {
-      this.user=JSON.parse(localStorage.user)
-      var that = this
-      axios.get('http://127.0.0.1:8080/api/family/familyList', {
-        params: {
-          family_id: that.user.familyId
-        }
-      }).then(function (res) {
-        that.familyList = res.data.members,
-          that.familyName = res.data.family.name,
-          that.familyId = res.data.family.id
-      });
+    beforeCreate() {
       axios.get('http://127.0.0.1:8080/api/v1/users/info', {
         headers: {
           'Authorization':localStorage.token,
         }
       }).then(function (res) {
-        global_.user = res.data.data;
-        that.user=res.data.data;
-        localStorage.setItem('user',that.user)
-        if ( that.user.status == 'admin')
-        { that.admin = true;
-        that.toJoin=false;
-        that.member=false;
-          axios.get('http://127.0.0.1:8080/api/family/applyList', {
-            headers: {
-              'Authorization': localStorage.token,
-            }
-          }).then(function (res) {
-            that.applyList=res.data;
-          });
-        }
-        else if( that.user.status=='member') {
-          that.member = true;
-          that.admin=false;
-          that.toJoin=false
-        }
-        else{
-          that.toJoin=true;
-          that.admin=false;
-          that.member=false;
-        }
+        let user=res.data.data;
+        localStorage.setItem('user',JSON.stringify(user))
+        localStorage.setItem('familyId',user.family_id)
       })
+    },
+    created: function () {
+      this.user=JSON.parse(localStorage.user)
+      var that = this
+      if(this.user.status=='member') {
+        this.member=true
+        that.loading = true
+        axios.get('http://127.0.0.1:8080/api/family/familyList', {
+          params: {
+            family_id: that.user.family_id
+          }
+        }).then(function (res) {
+          that.loading = false
+          that.familyList = res.data.members,
+            that.familyName = res.data.family.name,
+            that.familyId = res.data.family.id
+        });
+      }
+      else if(this.user.status=='admin'){
+        this.admin=true
+        that.loading = true
+        axios.get('http://127.0.0.1:8080/api/family/familyList', {
+          params: {
+            family_id: that.user.family_id
+          }
+        }).then(function (res) {
+          that.loading = false
+          that.familyList = res.data.members,
+            that.familyName = res.data.family.name,
+            that.familyId = res.data.family.id
+        });
+      }
+      else {
+        that.toJoin=true
+      }
     },
     methods: {
       del (id) {
@@ -224,7 +226,8 @@
               {
                 localStorage.familyId=0;
                 that.user.family_id=0;
-                localStorage.setItem('user',that.user);
+                that.user.status='no';
+                localStorage.setItem('user',JSON.stringify(that.user));
                 that.$router.push('/newFamily');
               }
             })
@@ -245,7 +248,8 @@
               {
                 localStorage.familyId=0;
                 that.user.family_id=0;
-                localStorage.setItem('user',that.user);
+                that.user.status='no';
+                localStorage.setItem('user',JSON.stringify(that.user));
                 that.$router.push('/newFamily');
               }
             });
@@ -258,7 +262,7 @@
         let that1=this;
         axios.get('http://127.0.0.1:8080/api/family/familyList', {
           params: {
-            family_id: that1.user.familyId
+            family_id: that1.user.family_id
           }
         }).then(function (res) {
           that.familyList = res.data.members
@@ -318,7 +322,7 @@
       }
     },
     beforeRouteEnter(to, from, next) {
-      if (localStorage.familyId && localStorage.familyId!=0) {
+      if (localStorage.familyId!= null  && localStorage.familyId!=0) {
       next();
       }
       else {

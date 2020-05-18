@@ -19,6 +19,7 @@
             <router-link to="/editGeren" style="text-decoration: none"><el-menu-item index="5-2" >编辑资料</el-menu-item></router-link>
           </el-submenu>
           <el-menu-item index="6" @click="loginOut">退出</el-menu-item>
+          <p style="display: inline-block;color: #fff;float: right;margin-right: 30px;margin-top: 19px">{{user.name}}</p>
         </el-menu>
         <div class="line"></div>
       </el-header>
@@ -28,13 +29,21 @@
   import global_ from '../../global.vue';
   import axios from 'axios';
   export default {
+    data () {
+      return {
+       user:''
+      };
+    },
     beforeRouteEnter(to, from, next) {
-      if (global_.token) {
+      if (localStorage.token) {
         next();
       }
       else {
         next({path: '/login'});
       }
+    },
+    created() {
+      this.user=JSON.parse(localStorage.user)
     },
     methods: {
       loginOut () {

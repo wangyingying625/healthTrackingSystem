@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div  v-loading="loading">
     <el-card class="box-card" shadow="hover">
       <div>
         <el-upload
@@ -68,6 +68,7 @@
     data () {
       return {
         pictureName: '',
+        loading:false,
         indicators:'',
         dialogTableVisible: false,
         file:'',
@@ -95,6 +96,7 @@
           that.$message('请补全病历信息后再试');
         }
         else {
+          this.loading=true
         var that=this;
         axios.post('http://127.0.0.1:8080/api/upload/identify',
           {
@@ -109,6 +111,7 @@
           else {
             console.log(res.data)
             that.indicators=res.data.indicators
+            that.loading=false
             that.dialogTableVisible=true
           }
         })

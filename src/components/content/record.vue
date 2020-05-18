@@ -1,5 +1,5 @@
 <template>
-  <div id="test">
+  <div id="test" v-loading="loading">
     <h1 style="margin-left: 10px">{{name}}的健康信息</h1>
     <el-row>
       <el-col  v-for="(item,i) in arrayMsg" :id="'card' + i" :key="i" :span="12"  style="height: 350px">
@@ -23,6 +23,7 @@
     data () {
       return {
         msg: {},
+        loading:false,
         name:'',
         finish: false,
         arrayMsg: []
@@ -51,8 +52,8 @@
       this.name=this.$route.query.name
     },
     mounted: function () {
-      console.log('mounted');
       var that = this;
+      that.loading=true;
       axios.get('http://127.0.0.1:8080/api/family/view', {
         params: {
           id: this.$route.query.id
@@ -62,6 +63,7 @@
         for (var j in that.msg) {
           that.arrayMsg.push(that.msg[j]);
         }
+        that.loading=false
         that.finish=true
       })
 

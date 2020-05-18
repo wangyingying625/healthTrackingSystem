@@ -1,8 +1,5 @@
 <template>
-  <div id="test">
-    <!--<el-row style="margin-bottom: 50px">
-      <el-col :span="24" style="height: 350px"><div id="main" class="grid-content bg-purple-dark" style="width: 100%;height: 100%"></div></el-col>
-    </el-row>-->
+  <div id="test"  v-loading="loading">
     <el-row>
       <el-col  v-for="(item,i) in arrayMsg" :id="'card' + i" :key="i" :span="12"  style="height: 350px">
         <div  :id="gernerateId(i)" class="grid-content bg-purple" style="width: 100%;height: 100%"></div>
@@ -25,6 +22,7 @@
     data () {
       return {
         msg: {},
+        loading:false,
         finish: false,
         arrayMsg: []
       };
@@ -51,8 +49,9 @@
     beforeCreate: function () {
 
     },
-    mounted: function () {
+    created: function () {
       var that = this;
+      that.loading=true;
       axios.get('http://127.0.0.1:8080/api/upload/record', {
         headers: {
           'Authorization': localStorage.token,
@@ -62,6 +61,7 @@
         for (var j in that.msg) {
           that.arrayMsg.push(that.msg[j]);
         }
+        that.loading=false;
         that.finish=true
       })
     },
